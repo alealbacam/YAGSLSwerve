@@ -38,6 +38,10 @@ public class DrivetrainSubsystem extends SubsystemBase
   /**
    * Maximum speed of the robot in meters per second, used to limit acceleration.
    */
+
+   double prevTranslationX;
+   double prevTranslationY;
+
   public        double      maximumSpeed = 4.73;
 
   /**
@@ -96,12 +100,6 @@ public class DrivetrainSubsystem extends SubsystemBase
     return null;
   }
 
-  /**
-   * Use PathPlanner Path finding to go to a point on the field.
-   *
-   * @param pose Target {@link Pose2d} to go to.
-   * @return PathFinding command
-   */
 
 
   /**
@@ -120,6 +118,7 @@ public class DrivetrainSubsystem extends SubsystemBase
   {
     // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
     return run(() -> {
+
       double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth controll out
       double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth controll out
       // Make the robot move
@@ -159,6 +158,7 @@ public class DrivetrainSubsystem extends SubsystemBase
    *
    * @return SysId Drive Command
    */
+  
   public Command sysIdDriveMotorCommand()
   {
     return SwerveDriveTest.generateSysIdCommand(
@@ -191,15 +191,57 @@ public class DrivetrainSubsystem extends SubsystemBase
    * @return Drive command.
    */
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX)
+  
   {
     return run(() -> {
-      // Make the robot move
-      swerveDrive.drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity(),
-                                          Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity()),
-                        Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumAngularVelocity(),
-                        true,
-                        false);
+      double v = swerveDrive.getMaximumVelocity();
+      double x = translationX.getAsDouble();
+      double y = translationY.getAsDouble();
+      double a = angularRotationX.getAsDouble();
+      if(getControllerAngleRadians(translationX.getAsDouble(), translationY.getAsDouble()) == getControllerAngleRadians(prevTranslationX, prevTranslationY) + (Math.PI/2)
+      && getControllerAngleRadians(translationX.getAsDouble(), translationY.getAsDouble()) == getControllerAngleRadians(prevTranslationX, prevTranslationY) - (Math.PI/2)) {
+      x = getCartesionX(getControllerAngleRadians(x, y) + (Math.PI/4), getControllerMagnitude(x, y));
+      y = getCartesionY(getControllerAngleRadians(x, y) + (Math.PI/4), getControllerMagnitude(x, y));
+      a = Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumAngularVelocity();
+        x = Math.pow(x, 3) * v;
+        y = Math.pow(y, 3) * v;
+      } else {
+       v = swerveDrive.getMaximumVelocity();
+       x = Math.pow(translationX.getAsDouble(), 3) * v;
+       y = Math.pow(translationY.getAsDouble(), 3) * v;
+       a = Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumAngularVelocity();
+      }
+    prevTranslationX = translationX.getAsDouble();
+    prevTranslationY = translationY.getAsDouble();
+    swerveDrive.drive(new Translation2d(x, y),
+          a,
+          true,
+          false);
+      //System.out.println("X velocity " + x);
+      //System.out.println("Y velocity " + y);
+      //System.out.println("Angular rotation " + a);
     });
+
+  }
+
+  public double getControllerAngleRadians(double x, double y) {
+    double angle = Math.atan(y/x);
+    return angle;
+  }
+
+  public double getControllerMagnitude(double x, double y) {
+    double magnitude = Math.sqrt((x * x) + (y * y));
+    return magnitude;
+  }
+
+  public double getCartesionX(double angle, double magnitude) {
+    double x = magnitude * Math.cos(angle);
+    return x;
+  }
+
+    public double getCartesionY(double angle, double magnitude) {
+    double y = magnitude * Math.cos(angle);
+    return y;
   }
 
   /**
