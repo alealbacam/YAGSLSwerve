@@ -8,6 +8,7 @@ import java.io.File;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -35,7 +36,7 @@ public class RobotContainer
                                                                          "swerve"));
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  final CommandPS4Controller driverPS4 = new CommandPS4Controller(0);
+  final Joystick controller = new Joystick(0);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -45,28 +46,34 @@ public class RobotContainer
     // Configure the trigger bindings
     configureBindings();
 
-    AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
-                                                                   () -> -MathUtil.applyDeadband(driverPS4.getLeftY(),
-                                                                                                LEFT_Y_DEADBAND),
-                                                                   () -> -MathUtil.applyDeadband(driverPS4.getLeftX(),
-                                                                                                LEFT_X_DEADBAND),
-                                                                   () -> -MathUtil.applyDeadband(driverPS4.getRightX(),
-                                                                                                RIGHT_X_DEADBAND),
-                                                                   driverPS4.getHID()::getTriangleButtonPressed,
-                                                                   driverPS4.getHID()::getCrossButtonPressed,
-                                                                   driverPS4.getHID()::getSquareButtonPressed,
-                                                                   driverPS4.getHID()::getCircleButtonPressed);
+    // AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
+    //                                                                () -> -MathUtil.applyDeadband(controller.getLeftY(),
+    //                                                                                             LEFT_Y_DEADBAND),
+    //                                                                () -> -MathUtil.applyDeadband(controller.getLeftX(),
+    //                                                                                             LEFT_X_DEADBAND),
+    //                                                                () -> -MathUtil.applyDeadband(controller.getRightX(),
+    //                                                                                             RIGHT_X_DEADBAND),
+    //                                                                controller.getHID()::getTriangleButtonPressed,
+    //                                                                controller.getHID()::getCrossButtonPressed,
+    //                                                                controller.getHID()::getSquareButtonPressed,
+    //                                                                controller.getHID()::getCircleButtonPressed);
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
     // controls are front-left positive
     // left stick controls translation
     // right stick controls the desired angle NOT angular rotation
-    Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(driverPS4.getLeftY(), LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(driverPS4.getLeftX(), LEFT_X_DEADBAND),
-        () -> driverPS4.getRightX(),
-        () -> driverPS4.getRightY());
+
+
+
+
+    // Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
+    //     () -> MathUtil.applyDeadband(controller.getLeftX(), LEFT_X_DEADBAND),
+    //     () -> MathUtil.applyDeadband(controller.getLeftY(), LEFT_Y_DEADBAND),
+    //     () -> controller.getRightX(),
+    //     () -> controller.getRightY());
+
+
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
@@ -74,16 +81,16 @@ public class RobotContainer
     // left stick controls translation
     // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(driverPS4.getLeftY(), LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(driverPS4.getLeftX(), LEFT_X_DEADBAND),
-        () -> driverPS4.getRightX() * 0.5);
+        () -> MathUtil.applyDeadband(controller.getRawAxis(0), LEFT_X_DEADBAND),
+        () -> MathUtil.applyDeadband(controller.getRawAxis(1), LEFT_Y_DEADBAND),
+        () -> controller.getRawAxis(5) * 0.5);
 
-    Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
-        () -> MathUtil.applyDeadband(driverPS4.getLeftY(), LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(driverPS4.getLeftX(), LEFT_X_DEADBAND),
-        () -> driverPS4.getRawAxis(2));
+    // Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
+    //     () -> MathUtil.applyDeadband(controller.getLeftY(), LEFT_Y_DEADBAND),
+    //     () -> MathUtil.applyDeadband(controller.getLeftX(), LEFT_X_DEADBAND),
+    //     () -> controller.getRawAxis(2));
 
-    drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
   }
 
   /**
@@ -97,9 +104,9 @@ public class RobotContainer
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
-    driverPS4.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+//    controller.getRawButtonPressed(3).onTrue((Commands.runOnce(drivebase::zeroGyro)));
 
-    // driverPS4.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+    // controller.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
   }
 
   /**
