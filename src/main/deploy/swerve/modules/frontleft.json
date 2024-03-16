@@ -1,22 +1,22 @@
 {
   "location": {
-    "front": 13.189,
-    "left": 13.189
+    "front": 16,
+    "left": 16
   },
-  "absoluteEncoderOffset": 150.556641,
+  "absoluteEncoderOffset": 222.451171875,
   "drive": {
-    "type": "falcon",
-    "id": 2,
+    "type": "talonfx",
+    "id": 1,
     "canbus": null
   },
   "angle": {
-    "type": "falcon",
-    "id": 1,
+    "type": "talonfx",
+    "id": 2,
     "canbus": null
   },
   "conversionFactor": {
     "angle": 16.8,
-    "drive": 0.03921201641335663
+    "drive": 0.047286787200699704
   },
   "encoder": {
     "type": "cancoder",
@@ -24,8 +24,8 @@
     "canbus": null
   },
   "inverted": {
-    "drive": false,
+    "drive": true,
     "angle": false
   },
-  "absoluteEncoderInverted": false
+  "absoluteEncoderInverted": true
 }

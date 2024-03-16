@@ -4,17 +4,18 @@
 
 package frc.robot;
 
+import java.io.File;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.butto]n.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AbsoluteDrive;
 import frc.robot.commands.AbsoluteDriveAdv;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import java.io.File;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -31,7 +32,7 @@ public class RobotContainer
 
   // The robot's subsystems and commands are defined here...
   private final DrivetrainSubsystem drivebase = new DrivetrainSubsystem(new File(Filesystem.getDeployDirectory(),
-                                                                         "swerve/neo"));
+                                                                         "swerve"));
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandPS4Controller driverPS4 = new CommandPS4Controller(0);
@@ -82,8 +83,7 @@ public class RobotContainer
         () -> MathUtil.applyDeadband(driverPS4.getLeftX(), LEFT_X_DEADBAND),
         () -> driverPS4.getRawAxis(2));
 
-    drivebase.setDefaultCommand(
-        !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
+    drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
   }
 
   /**
